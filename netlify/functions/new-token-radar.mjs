@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 import { DLMM_PROGRAM_ID, heliusRpc, parseEnhancedTransactions, shortAddress } from './_lib/helius.mjs';
 
 const METEORA_API = 'https://dlmm.datapi.meteora.ag';
@@ -80,7 +81,7 @@ async function getPoolForMint(mint) {
   }
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   const requestedHours = Number(event.queryStringParameters?.hours || DEFAULT_HOURS);
   const hours = Math.min(72, Math.max(1, Number.isFinite(requestedHours) ? requestedHours : DEFAULT_HOURS));
   const requestedLimit = Number(event.queryStringParameters?.limit || 20);
@@ -157,3 +158,5 @@ export default async function handler(event) {
     return json({ error: error.message, radar: [] }, 503);
   }
 }
+
+export default (request) => webEntry(handler, request);

@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 const HELIUS_BASE = 'https://api-mainnet.helius-rpc.com';
 const EXCLUDED = new Set([
   '11111111111111111111111111111111',
@@ -37,7 +38,7 @@ function addEdge(map, wallet, address, kind, tx) {
 
 function short(address) { return `${address.slice(0, 4)}…${address.slice(-4)}`; }
 
-export default async function handler(event) {
+export async function handler(event) {
   const wallet = String(event.queryStringParameters?.wallet || '').trim();
   if (!isSolanaAddress(wallet)) return json({ error: 'Paste a full Solana wallet address' }, 400);
   const apiKey = process.env.HELIUS_API_KEY;
@@ -96,3 +97,5 @@ export default async function handler(event) {
     return json({ error: error.message }, 503);
   }
 }
+
+export default (request) => webEntry(handler, request);

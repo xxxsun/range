@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 const API_BASE = 'https://dlmm.datapi.meteora.ag';
 
 function json(body, status = 200) {
@@ -12,7 +13,7 @@ function json(body, status = 200) {
   };
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   const params = new URLSearchParams(event.queryStringParameters || {});
   const page = Math.max(1, Number(params.get('page') || 1));
   const pageSize = Math.min(100, Math.max(1, Number(params.get('page_size') || 20)));
@@ -41,3 +42,5 @@ export default async function handler(event) {
     return json({ error: 'Unable to reach Meteora Data API', detail: error.message }, 502);
   }
 }
+
+export default (request) => webEntry(handler, request);

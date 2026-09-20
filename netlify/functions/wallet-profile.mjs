@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 import { heliusRpc } from './_lib/helius.mjs';
 
 const METEORA_API = 'https://dlmm.datapi.meteora.ag';
@@ -21,7 +22,7 @@ async function meteoraJson(path) {
   return payload;
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   const wallet = String(event.queryStringParameters?.wallet || '').trim();
   if (!isSolanaAddress(wallet)) return json({ error: 'A valid Solana wallet is required' }, 400);
   try {
@@ -48,3 +49,5 @@ export default async function handler(event) {
     return json({ error: error.message }, 502);
   }
 }
+
+export default (request) => webEntry(handler, request);

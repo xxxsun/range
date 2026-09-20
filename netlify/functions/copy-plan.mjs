@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 const API_BASE = 'https://dlmm.datapi.meteora.ag';
 
 function json(body, status = 200) {
@@ -14,7 +15,7 @@ function json(body, status = 200) {
 
 const allowedStrategies = new Set(['spot', 'curve', 'bid-ask']);
 
-export default async function handler(event) {
+export async function handler(event) {
   if (event.httpMethod !== 'POST') return json({ error: 'POST required' }, 405);
   let input;
   try { input = JSON.parse(event.body || '{}'); } catch { return json({ error: 'Invalid JSON' }, 400); }
@@ -59,3 +60,5 @@ export default async function handler(event) {
     return json({ error: 'Unable to prepare plan', detail: error.message }, 502);
   }
 }
+
+export default (request) => webEntry(handler, request);

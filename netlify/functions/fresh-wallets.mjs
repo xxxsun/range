@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 import { DLMM_PROGRAM_ID, heliusRpc, parseEnhancedTransactions, shortAddress } from './_lib/helius.mjs';
 
 const METEORA_API = 'https://dlmm.datapi.meteora.ag';
@@ -26,7 +27,7 @@ async function portfolioTotal(wallet) {
   return payload;
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   const query = event.queryStringParameters || {};
   const windowDays = Math.min(30, Math.max(1, Number(query.days || 7)));
   const minRoi = Number.isFinite(Number(query.min_roi)) ? Number(query.min_roi) : 20;
@@ -86,3 +87,5 @@ export default async function handler(event) {
     return json({ error: error.message, wallets: [] }, 503);
   }
 }
+
+export default (request) => webEntry(handler, request);

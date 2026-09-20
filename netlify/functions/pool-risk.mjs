@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 import { heliusRpc } from './_lib/helius.mjs';
 
 const METEORA_API = 'https://dlmm.datapi.meteora.ag';
@@ -49,7 +50,7 @@ async function getLossSample(poolAddress) {
   return { sampleCount: values.length, lossCount, lossRate: values.length ? lossCount / values.length : null, pnlUsd: values.reduce((sum, value) => sum + value, 0), coverage: `${wallets.length} tracked wallets queried` };
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   const params = event.queryStringParameters || {};
   const poolAddress = String(params.poolAddress || '').trim();
   const mint = String(params.mint || '').trim();
@@ -94,3 +95,5 @@ export default async function handler(event) {
     return json({ error: error.message }, 502);
   }
 }
+
+export default (request) => webEntry(handler, request);

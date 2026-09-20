@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 import { DLMM_PROGRAM_ID, heliusRpc, parseEnhancedTransactions, shortAddress } from './_lib/helius.mjs';
 
 const METEORA_API = 'https://dlmm.datapi.meteora.ag';
@@ -40,14 +41,14 @@ async function getKnownSmartWallets() {
   const known = new Set(String(process.env.WATCH_WALLETS || '').split(',').map(item => item.trim()).filter(Boolean));
   try {
     const module = await import('./leaderboard.mjs');
-    const result = await module.default({ httpMethod: 'GET', queryStringParameters: {} });
+    const result = await (module.handler || module.default)({ httpMethod: 'GET', queryStringParameters: {} });
     const body = JSON.parse(result.body || '{}');
     for (const wallet of body.wallets || []) if (wallet.address || wallet.id) known.add(wallet.address || wallet.id);
   } catch (_) {}
   return known;
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   const requested = Number(event.queryStringParameters?.limit || 12);
   const limit = Math.min(30, Math.max(1, Number.isFinite(requested) ? requested : 12));
   const windowHours = Math.min(24, Math.max(1, Number(event.queryStringParameters?.hours || 6)));
@@ -96,3 +97,5 @@ export default async function handler(event) {
     return json({ error: error.message, matches: [], trendingPools: [] }, 503);
   }
 }
+
+export default (request) => webEntry(handler, request);

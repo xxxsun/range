@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 import { heliusRpc } from './_lib/helius.mjs';
 
 function json(body, status = 200) {
@@ -8,7 +9,7 @@ function json(body, status = 200) {
   };
 }
 
-export default async function handler() {
+export async function handler() {
   try {
     const slot = await heliusRpc('getSlot', [{ commitment: 'finalized' }]);
     return json({ ok: true, provider: 'helius', network: 'solana-mainnet', slot, checkedAt: new Date().toISOString() });
@@ -16,3 +17,5 @@ export default async function handler() {
     return json({ ok: false, provider: 'helius', error: error.message }, 503);
   }
 }
+
+export default (request) => webEntry(handler, request);

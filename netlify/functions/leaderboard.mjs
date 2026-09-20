@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 const METEORA_API = 'https://dlmm.datapi.meteora.ag';
 
 function json(body, status = 200) {
@@ -50,7 +51,7 @@ async function getWalletScore(wallet) {
   };
 }
 
-export default async function handler() {
+export async function handler() {
   // Best option: an indexed JSON feed produced by the Helius/worker pipeline.
   const sourceUrl = process.env.LEADERBOARD_SOURCE_URL;
   if (sourceUrl) {
@@ -90,3 +91,5 @@ export default async function handler() {
   const liveWallets = results.filter(item => item.status === 'fulfilled').map(item => item.value).sort((a, b) => b.score - a.score);
   return json({ source: 'meteora-wallet-pnl', syncedAt: new Date().toISOString(), total: liveWallets.length, wallets: liveWallets });
 }
+
+export default (request) => webEntry(handler, request);

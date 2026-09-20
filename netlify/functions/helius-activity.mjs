@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 import { DLMM_PROGRAM_ID, heliusRpc, parseEnhancedTransactions, shortAddress } from './_lib/helius.mjs';
 
 function json(body, status = 200) {
@@ -8,7 +9,7 @@ function json(body, status = 200) {
   };
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   const requested = Number(event.queryStringParameters?.limit || 30);
   const limit = Math.min(100, Math.max(1, Number.isFinite(requested) ? requested : 30));
   try {
@@ -31,3 +32,5 @@ export default async function handler(event) {
     return json({ error: error.message }, 503);
   }
 }
+
+export default (request) => webEntry(handler, request);

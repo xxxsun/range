@@ -1,3 +1,4 @@
+import { webEntry } from './_lib/netlify.mjs';
 const METEORA_API = 'https://dlmm.datapi.meteora.ag';
 
 function json(body, status = 200) {
@@ -13,7 +14,7 @@ function num(value, fallback = 0) { const parsed = Number(value); return Number.
 function safeText(value, max = 140) { return String(value || '').slice(0, max); }
 
 async function invoke(functionModule, queryStringParameters = {}) {
-  const result = await functionModule.default({ httpMethod: 'GET', queryStringParameters });
+  const result = await (functionModule.handler || functionModule.default)({ httpMethod: 'GET', queryStringParameters });
   let body = {};
   try { body = JSON.parse(result.body || '{}'); } catch (_) {}
   return { statusCode: result.statusCode || 500, body };
@@ -126,7 +127,7 @@ async function askModel(evidence, riskProfile) {
   return { engine: 'openai-compatible', model, result: parsed };
 }
 
-export default async function handler(event) {
+export async function handler(event) {
   if (event.httpMethod !== 'POST') return json({ error: 'POST required' }, 405);
   let input = {};
   try { input = JSON.parse(event.body || '{}'); } catch (_) { return json({ error: 'Invalid JSON' }, 400); }
@@ -200,3 +201,5 @@ export default async function handler(event) {
     return json({ error: error.message, recommendations: [], warnings: ['Agent scan failed; no recommendation was produced.'] }, 502);
   }
 }
+
+export default (request) => webEntry(handler, request);
